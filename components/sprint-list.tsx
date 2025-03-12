@@ -204,6 +204,19 @@ export default function SprintList({
   // Handle page change
   const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages) {
+      // Deselect the sprint when changing pages
+      if (page !== currentPage) {
+        // Cancel editing if in progress
+        if (editingSprint !== null) {
+          setEditingSprint(null);
+          setDatePickerView(null);
+        }
+
+        // Deselect the sprint if one is selected
+        if (selectedSprintId) {
+          onSprintSelect("");
+        }
+      }
       setCurrentPage(page)
     }
   }
