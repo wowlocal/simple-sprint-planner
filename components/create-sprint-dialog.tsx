@@ -39,7 +39,7 @@ export default function CreateSprintDialog({ open, onOpenChange, onCreateSprint 
   const [selectedDuration, setSelectedDuration] = useState<number>(14) // Default to 2 weeks
   const [customDuration, setCustomDuration] = useState<boolean>(false)
 
-  // Load the last sprint end date from localStorage when component mounts
+  // Load the last sprint end date and duration from localStorage when component mounts
   useEffect(() => {
     const savedEndDate = localStorage.getItem("lastSprintEndDate")
     if (savedEndDate) {
@@ -52,9 +52,25 @@ export default function CreateSprintDialog({ open, onOpenChange, onCreateSprint 
     }
   }, [])
 
-  // Update start date when dialog opens or lastSprintEndDate changes
+  // Load saved duration and update start date when dialog opens
   useEffect(() => {
     if (open) {
+      // Load the last selected duration when dialog opens
+      const savedDuration = localStorage.getItem("lastSprintDuration")
+      if (savedDuration) {
+        try {
+          const parsedDuration = parseInt(savedDuration, 10)
+          if (!isNaN(parsedDuration) && parsedDuration > 0) {
+            setSelectedDuration(parsedDuration)
+            // Set customDuration to true if the saved duration is not one of the predefined options
+            setCustomDuration(!durationOptions.some(option => option.days === parsedDuration))
+          }
+        } catch (error) {
+          console.error("Failed to parse saved duration:", error)
+        }
+      }
+
+      // Set start date based on last sprint end date
       if (lastSprintEndDate) {
         setStartDate(addDays(lastSprintEndDate, 1)) // Start the day after the last sprint ended
       } else {
@@ -84,11 +100,13 @@ export default function CreateSprintDialog({ open, onOpenChange, onCreateSprint 
     localStorage.setItem("lastSprintEndDate", endDate.toISOString())
     setLastSprintEndDate(endDate)
 
+    // Save the selected duration to localStorage
+    localStorage.setItem("lastSprintDuration", selectedDuration.toString())
+
     // Reset form
     setName("")
     setDescription("")
-    setSelectedDuration(14) // Reset to 2 weeks
-    setCustomDuration(false)
+    // Don't reset duration as we want to remember it for next time
     onOpenChange(false)
   }
 
