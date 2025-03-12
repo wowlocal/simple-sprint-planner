@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import type { Sprint } from "@/app/page"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -42,6 +42,7 @@ export default function SprintList({
   const [editEndDate, setEditEndDate] = useState<Date | undefined>(undefined)
   const [datePickerView, setDatePickerView] = useState<"start" | "end" | null>(null)
   const [editDescription, setEditDescription] = useState<string>("")
+  const sprintListRef = useRef<HTMLDivElement>(null)
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1)
@@ -68,6 +69,36 @@ export default function SprintList({
       }
     }
   }, [selectedSprintId, sortedSprints, itemsPerPage, currentPage]);
+
+  // Effect to handle clicks outside the sprint list to deselect the sprint
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Skip if no sprint is selected
+      if (!selectedSprintId) return;
+
+      // Skip if we're editing a sprint
+      if (editingSprint) return;
+
+      // Check if the click was inside the sprint list component
+      if (sprintListRef.current && !sprintListRef.current.contains(event.target as Node)) {
+        // Check if the click was on a calendar element
+        const isCalendarClick = (event.target as Element)?.closest('[class*="calendar"]') !== null;
+
+        // If the click was not on the calendar or sprint list, deselect the sprint
+        if (!isCalendarClick) {
+          onSprintSelect("");
+        }
+      }
+    };
+
+    // Add event listener
+    document.addEventListener("mousedown", handleClickOutside);
+
+    // Clean up
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [selectedSprintId, onSprintSelect, editingSprint]);
 
   // Check if the selected date is within a sprint
   const isDateInSprint = (sprint: Sprint, date: Date) => {
@@ -228,7 +259,7 @@ export default function SprintList({
   }
 
   return (
-    <Card>
+    <Card ref={sprintListRef}>
       <CardHeader>
         <CardTitle>Sprints</CardTitle>
         <CardDescription>
