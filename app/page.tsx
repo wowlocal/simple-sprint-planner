@@ -274,7 +274,7 @@ export default function SprintCalendar() {
     <div className="container mx-auto py-6">
       <div className="flex flex-col space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h1 className="text-2xl sm:text-3xl font-bold">Sprint Calendar</h1>
+          <h1 className="hidden sm:block text-2xl sm:text-3xl font-bold">Sprint Calendar</h1>
           <div className="flex flex-wrap gap-2 w-full sm:w-auto">
             {/* Always visible New Sprint button */}
             <Button onClick={() => setIsCreateDialogOpen(true)} className="ml-auto sm:ml-0">
