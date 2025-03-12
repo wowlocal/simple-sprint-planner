@@ -272,7 +272,7 @@ export default function SprintCalendar() {
   }
 
   return (
-    <div className="container mx-auto py-6 px-4 sm:px-6">
+    <div className="container mx-auto py-6 px-4 sm:px-6 max-w-7xl">
       <div className="flex flex-col space-y-6">
         {/* Redesigned header for better mobile experience */}
         <div className="flex flex-col gap-4">
@@ -333,22 +333,31 @@ export default function SprintCalendar() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+          <div className="md:col-span-2 w-full">
             <Tabs defaultValue="month" onValueChange={(value) => setView(value as "month" | "year")}>
               <TabsList className="mb-4">
                 <TabsTrigger value="month">Month View</TabsTrigger>
                 <TabsTrigger value="year">Year View</TabsTrigger>
               </TabsList>
               <TabsContent value="month">
-                <div className="border rounded-lg p-4">
+                <div className="border rounded-lg p-4 flex justify-center">
                   <Calendar
                     mode="single"
                     selected={date}
                     month={currentMonth}
                     onMonthChange={setCurrentMonth}
                     onSelect={(date) => date && updateDateAndMonth(date)}
-                    className="rounded-md"
+                    className="rounded-md w-full max-w-3xl mx-auto sm:p-2 md:p-3"
+                    classNames={{
+                      months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0 w-full justify-center",
+                      month: "space-y-4 w-full",
+                      table: "w-full border-collapse space-y-1",
+                      row: "flex w-full mt-2 justify-center",
+                      head_row: "flex w-full justify-center",
+                      cell: "text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20 h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11",
+                      head_cell: "text-muted-foreground rounded-md w-9 sm:w-10 md:w-11 font-normal text-[0.8rem] sm:text-sm",
+                    }}
                     modifiers={{
                       sprint: (date) => getSprintForDate(date) !== undefined,
                       selectedSprint: (date) => isDateInSelectedSprint(date),
@@ -374,11 +383,11 @@ export default function SprintCalendar() {
                                 setSelectedSprintId(null)
                               }
                             }}
-                            className={`relative h-9 w-9 p-0 font-normal aria-selected:opacity-100 ${
+                            className={`relative h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 p-0 font-normal aria-selected:opacity-100 ${
                               sprint ? sprint.color : ""
                             } ${isSelected ? "ring-2 ring-primary" : ""}`}
                           >
-                            <div className="flex h-full w-full items-center justify-center rounded-md">
+                            <div className="flex h-full w-full items-center justify-center rounded-md text-sm sm:text-base">
                               {props.date.getDate()}
                             </div>
                           </div>
