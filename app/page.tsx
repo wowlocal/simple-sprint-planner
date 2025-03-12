@@ -245,6 +245,22 @@ export default function SprintCalendar() {
     })
   }
 
+  // Function to get all sprints for a date
+  const getAllSprintsForDate = (date: Date) => {
+    const checkDate = new Date(date)
+    checkDate.setHours(0, 0, 0, 0)
+
+    return sprints.filter((sprint) => {
+      const startDate = new Date(sprint.startDate)
+      const endDate = new Date(sprint.endDate)
+
+      startDate.setHours(0, 0, 0, 0)
+      endDate.setHours(0, 0, 0, 0)
+
+      return checkDate >= startDate && checkDate <= endDate
+    });
+  }
+
   // Function to check if a date is within the selected sprint
   const isDateInSelectedSprint = (date: Date) => {
     if (!selectedSprintId) return false
@@ -303,7 +319,18 @@ export default function SprintCalendar() {
                     selected={date}
                     month={currentMonth}
                     onMonthChange={setCurrentMonth}
-                    onSelect={(date) => date && updateDateAndMonth(date)}
+                    onSelect={(date) => {
+                      if (date) {
+                        updateDateAndMonth(date)
+                        // If this date is in a sprint, select that sprint
+                        const sprint = getSprintForDate(date)
+                        if (sprint) {
+                          setSelectedSprintId(sprint.id === selectedSprintId ? null : sprint.id)
+                        } else {
+                          setSelectedSprintId(null)
+                        }
+                      }
+                    }}
                     className="rounded-md"
                     modifiers={{
                       sprint: (date) => getSprintForDate(date) !== undefined,
@@ -317,24 +344,31 @@ export default function SprintCalendar() {
                       Day: (props) => {
                         const sprint = getSprintForDate(props.date)
                         const isSelected = isDateInSelectedSprint(props.date)
+                        const sprintsForDate = getAllSprintsForDate(props.date)
+                        const hasMultipleSprints = sprintsForDate.length > 1
 
                         return (
                           <div
-                            onClick={() => {
-                              props.onClick?.()
-                              // If this date is in a sprint, select that sprint
-                              if (sprint) {
-                                setSelectedSprintId(sprint.id === selectedSprintId ? null : sprint.id)
-                              } else {
-                                setSelectedSprintId(null)
-                              }
-                            }}
                             className={`relative h-9 w-9 p-0 font-normal aria-selected:opacity-100 ${
-                              sprint ? sprint.color : ""
+                              sprint && !hasMultipleSprints ? sprint.color : ""
                             } ${isSelected ? "ring-2 ring-primary" : ""}`}
                           >
                             <div className="flex h-full w-full items-center justify-center rounded-md">
                               {props.date.getDate()}
+
+                              {hasMultipleSprints && (
+                                <div className="absolute bottom-0 left-0 right-0 flex justify-center space-x-0.5 pb-0.5">
+                                  {sprintsForDate.slice(0, 3).map((sprint, index) => (
+                                    <div
+                                      key={sprint.id}
+                                      className={`h-1.5 w-1.5 rounded-full ${sprint.color.split(' ')[0]}`}
+                                    />
+                                  ))}
+                                  {sprintsForDate.length > 3 && (
+                                    <div className="h-1.5 w-1.5 rounded-full bg-gray-400" />
+                                  )}
+                                </div>
+                              )}
                             </div>
                           </div>
                         )
