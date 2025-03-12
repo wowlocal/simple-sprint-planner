@@ -38,6 +38,7 @@ export default function CreateSprintDialog({ open, onOpenChange, onCreateSprint 
   const [startDate, setStartDate] = useState<Date>(new Date()) // Initialize with current date
   const [selectedDuration, setSelectedDuration] = useState<number>(14) // Default to 2 weeks
   const [customDuration, setCustomDuration] = useState<boolean>(false)
+  const [durationInputValue, setDurationInputValue] = useState<string>("14") // Track raw input value
 
   // Load the last sprint end date and duration from localStorage when component mounts
   useEffect(() => {
@@ -62,6 +63,7 @@ export default function CreateSprintDialog({ open, onOpenChange, onCreateSprint 
           const parsedDuration = parseInt(savedDuration, 10)
           if (!isNaN(parsedDuration) && parsedDuration > 0) {
             setSelectedDuration(parsedDuration)
+            setDurationInputValue(parsedDuration.toString())
             // Set customDuration to true if the saved duration is not one of the predefined options
             setCustomDuration(!durationOptions.some(option => option.days === parsedDuration))
           }
@@ -112,10 +114,31 @@ export default function CreateSprintDialog({ open, onOpenChange, onCreateSprint 
 
   // Handle custom duration input change
   const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number.parseInt(e.target.value)
+    const inputValue = e.target.value
+    setDurationInputValue(inputValue)
+
+    // Only update the actual duration if we have a valid number
+    const value = Number.parseInt(inputValue)
     if (!isNaN(value) && value > 0) {
       setSelectedDuration(value)
+    } else if (inputValue === "") {
+      // If input is empty, set duration to minimum value
+      setSelectedDuration(1)
     }
+  }
+
+  // Handle preset duration button clicks
+  const handlePresetDuration = (days: number) => {
+    setSelectedDuration(days)
+    setDurationInputValue(days.toString())
+    setCustomDuration(false)
+  }
+
+  // Handle custom duration button click
+  const handleCustomDurationClick = () => {
+    setCustomDuration(true)
+    // Ensure the input value matches the current duration
+    setDurationInputValue(selectedDuration.toString())
   }
 
   // Custom day renderer to highlight the sprint duration
@@ -178,10 +201,7 @@ export default function CreateSprintDialog({ open, onOpenChange, onCreateSprint 
                         type="button"
                         variant={!customDuration && selectedDuration === option.days ? "default" : "outline"}
                         className="text-sm"
-                        onClick={() => {
-                          setSelectedDuration(option.days)
-                          setCustomDuration(false)
-                        }}
+                        onClick={() => handlePresetDuration(option.days)}
                       >
                         {option.label}
                       </Button>
@@ -193,17 +213,24 @@ export default function CreateSprintDialog({ open, onOpenChange, onCreateSprint 
                       type="button"
                       variant={customDuration ? "default" : "outline"}
                       className="text-sm"
-                      onClick={() => setCustomDuration(true)}
+                      onClick={handleCustomDurationClick}
                     >
                       Custom
                     </Button>
                     {customDuration && (
                       <div className="flex items-center gap-2">
                         <Input
-                          type="number"
-                          min="1"
-                          value={selectedDuration}
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          value={durationInputValue}
                           onChange={handleDurationChange}
+                          onBlur={() => {
+                            // Ensure we have a valid value on blur
+                            if (durationInputValue === "" || Number.parseInt(durationInputValue) < 1) {
+                              setDurationInputValue("1");
+                              setSelectedDuration(1);
+                            }
+                          }}
                           className="w-20"
                         />
                         <span className="text-sm">days</span>
