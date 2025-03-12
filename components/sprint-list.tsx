@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import type { Sprint } from "@/app/page"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -55,6 +55,19 @@ export default function SprintList({
   const indexOfLastSprint = currentPage * itemsPerPage
   const indexOfFirstSprint = indexOfLastSprint - itemsPerPage
   const currentSprints = sortedSprints.slice(indexOfFirstSprint, indexOfLastSprint)
+
+  // Effect to navigate to the page containing the selected sprint
+  useEffect(() => {
+    if (selectedSprintId) {
+      const selectedSprintIndex = sortedSprints.findIndex(sprint => sprint.id === selectedSprintId);
+      if (selectedSprintIndex !== -1) {
+        const pageOfSelectedSprint = Math.floor(selectedSprintIndex / itemsPerPage) + 1;
+        if (pageOfSelectedSprint !== currentPage) {
+          setCurrentPage(pageOfSelectedSprint);
+        }
+      }
+    }
+  }, [selectedSprintId, sortedSprints, itemsPerPage, currentPage]);
 
   // Check if the selected date is within a sprint
   const isDateInSprint = (sprint: Sprint, date: Date) => {
@@ -123,11 +136,11 @@ export default function SprintList({
     if (editingSprint === null) {
       onSprintSelect(sprintId)
 
-      // If we have a date change handler and the sprint is being selected (not deselected)
-      if (onDateChange && (selectedSprintId !== sprintId)) {
-        // Find the sprint
-        const sprint = sprints.find(s => s.id === sprintId);
-        if (sprint) {
+      // Find the sprint
+      const sprint = sprints.find(s => s.id === sprintId);
+      if (sprint) {
+        // If we have a date change handler and the sprint is being selected (not deselected)
+        if (onDateChange && (selectedSprintId !== sprintId)) {
           // Check if the selected date is within the sprint
           const sprintStart = new Date(sprint.startDate);
           const sprintEnd = new Date(sprint.endDate);
@@ -142,6 +155,15 @@ export default function SprintList({
           // update the calendar view to show the start of the sprint
           if (currentDate < sprintStart || currentDate > sprintEnd) {
             onDateChange(new Date(sprint.startDate));
+          }
+        }
+
+        // Navigate to the page containing the selected sprint
+        const sprintIndex = sortedSprints.findIndex(s => s.id === sprintId);
+        if (sprintIndex !== -1) {
+          const pageOfSprint = Math.floor(sprintIndex / itemsPerPage) + 1;
+          if (pageOfSprint !== currentPage) {
+            setCurrentPage(pageOfSprint);
           }
         }
       }
