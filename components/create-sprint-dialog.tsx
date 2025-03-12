@@ -1,13 +1,13 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Calendar } from "@/components/ui/calendar"
-import { format, addDays, isBefore, isAfter, isSameDay } from "date-fns"
+import { format, addDays, isBefore, isAfter, isSameDay, parseISO } from "date-fns"
 import type { Sprint } from "@/app/page"
 import { CalendarIcon, ArrowRight } from "lucide-react"
 
@@ -31,11 +31,39 @@ const durationOptions: DurationOption[] = [
 ]
 
 export default function CreateSprintDialog({ open, onOpenChange, onCreateSprint }: CreateSprintDialogProps) {
+  // Get the last sprint end date from localStorage when component mounts
+  const [lastSprintEndDate, setLastSprintEndDate] = useState<Date | null>(null)
+
+  // Initialize start date based on last sprint end date or current date
+  const getInitialStartDate = () => {
+    if (lastSprintEndDate) {
+      return addDays(lastSprintEndDate, 1) // Start the day after the last sprint ended
+    }
+    return new Date() // Default to today if no previous sprint
+  }
+
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
-  const [startDate, setStartDate] = useState<Date>(new Date())
+  const [startDate, setStartDate] = useState<Date>(getInitialStartDate())
   const [selectedDuration, setSelectedDuration] = useState<number>(14) // Default to 2 weeks
   const [customDuration, setCustomDuration] = useState<boolean>(false)
+
+  // Load the last sprint end date from localStorage when component mounts
+  useEffect(() => {
+    const savedEndDate = localStorage.getItem("lastSprintEndDate")
+    if (savedEndDate) {
+      try {
+        const parsedDate = parseISO(savedEndDate)
+        setLastSprintEndDate(parsedDate)
+        // Only update the start date when the dialog opens
+        if (open) {
+          setStartDate(addDays(parsedDate, 1))
+        }
+      } catch (error) {
+        console.error("Failed to parse saved end date:", error)
+      }
+    }
+  }, [open])
 
   // Calculate end date based on start date and duration
   const endDate = addDays(startDate, selectedDuration - 1) // Subtract 1 to include start day
@@ -54,10 +82,13 @@ export default function CreateSprintDialog({ open, onOpenChange, onCreateSprint 
       description,
     })
 
+    // Save the end date of this sprint to localStorage
+    localStorage.setItem("lastSprintEndDate", endDate.toISOString())
+    setLastSprintEndDate(endDate)
+
     // Reset form
     setName("")
     setDescription("")
-    setStartDate(new Date())
     setSelectedDuration(14) // Reset to 2 weeks
     setCustomDuration(false)
     onOpenChange(false)
