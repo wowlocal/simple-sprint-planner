@@ -128,9 +128,10 @@ export default function CreateSprintDialog({ open, onOpenChange, onCreateSprint 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] lg:max-w-[900px] max-h-[90vh] p-0 flex flex-col">
-        <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2 flex-shrink-0">
-          <DialogTitle className="text-xl">Create New Sprint</DialogTitle>
-          <DialogDescription>Plan your sprint timeline and add details</DialogDescription>
+        <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4 flex-shrink-0 bg-primary/5">
+          <DialogTitle className="text-xl text-primary">Create New Sprint</DialogTitle>
+          <DialogDescription className="text-muted-foreground">Plan your sprint timeline and add details</DialogDescription>
+          <div className="h-0"></div>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto">
