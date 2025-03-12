@@ -272,26 +272,30 @@ export default function SprintCalendar() {
   }
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="container mx-auto py-6 px-4 sm:px-6">
       <div className="flex flex-col space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="flex items-center gap-4">
-            <h1 className="hidden sm:block text-2xl sm:text-3xl font-bold">Sprint Calendar</h1>
+        {/* Redesigned header for better mobile experience */}
+        <div className="flex flex-col gap-4">
+          {/* Title and theme toggle row */}
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl sm:text-3xl font-bold">Sprint Calendar</h1>
             <ThemeToggle />
           </div>
-          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-            {/* Always visible New Sprint button */}
-            <Button onClick={() => setIsCreateDialogOpen(true)} className="ml-auto sm:ml-0">
+
+          {/* Action buttons row - responsive layout */}
+          <div className="flex items-center justify-between gap-2">
+            {/* New Sprint button - always visible and prominent */}
+            <Button onClick={() => setIsCreateDialogOpen(true)} className="flex-1 sm:flex-none">
               <Plus className="mr-2 h-4 w-4" />
               New Sprint
             </Button>
 
-            {/* Dropdown menu for mobile */}
-            <div className="sm:hidden">
+            {/* Mobile: Dropdown for secondary actions */}
+            <div className="sm:hidden flex-none">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="icon">
-                    <EllipsisVertical className="h-4 w-4" />
+                    <Menu className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -311,8 +315,8 @@ export default function SprintCalendar() {
               </DropdownMenu>
             </div>
 
-            {/* Desktop buttons */}
-            <div className="hidden sm:flex space-x-2">
+            {/* Desktop: Horizontal button group */}
+            <div className="hidden sm:flex gap-2">
               <Button variant="outline" onClick={exportSprints}>
                 <Download className="mr-2 h-4 w-4" />
                 Export
