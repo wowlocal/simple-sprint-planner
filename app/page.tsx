@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Calendar } from "@/components/ui/calendar"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Download, Upload, Plus, Trash2 } from "lucide-react"
+import { Download, Upload, Plus, Trash2, Menu, EllipsisVertical } from "lucide-react"
 import YearView from "@/components/year-view"
 import CreateSprintDialog from "@/components/create-sprint-dialog"
 import SprintList from "@/components/sprint-list"
@@ -19,6 +19,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 // Sprint type definition
 export type Sprint = {
@@ -267,25 +273,55 @@ export default function SprintCalendar() {
   return (
     <div className="container mx-auto py-6">
       <div className="flex flex-col space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold">Sprint Calendar</h1>
-          <div className="flex space-x-2">
-            <Button variant="outline" onClick={exportSprints}>
-              <Download className="mr-2 h-4 w-4" />
-              Export
-            </Button>
-            <Button variant="outline" onClick={importSprints}>
-              <Upload className="mr-2 h-4 w-4" />
-              Import
-            </Button>
-            <Button variant="outline" onClick={() => setIsClearDialogOpen(true)}>
-              <Trash2 className="mr-2 h-4 w-4" />
-              Clear All
-            </Button>
-            <Button onClick={() => setIsCreateDialogOpen(true)}>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <h1 className="text-2xl sm:text-3xl font-bold">Sprint Calendar</h1>
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+            {/* Always visible New Sprint button */}
+            <Button onClick={() => setIsCreateDialogOpen(true)} className="ml-auto sm:ml-0">
               <Plus className="mr-2 h-4 w-4" />
               New Sprint
             </Button>
+
+            {/* Dropdown menu for mobile */}
+            <div className="sm:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <EllipsisVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={exportSprints}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Export
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={importSprints}>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Import
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setIsClearDialogOpen(true)}>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Clear All
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {/* Desktop buttons */}
+            <div className="hidden sm:flex space-x-2">
+              <Button variant="outline" onClick={exportSprints}>
+                <Download className="mr-2 h-4 w-4" />
+                Export
+              </Button>
+              <Button variant="outline" onClick={importSprints}>
+                <Upload className="mr-2 h-4 w-4" />
+                Import
+              </Button>
+              <Button variant="outline" onClick={() => setIsClearDialogOpen(true)}>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Clear All
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -321,7 +357,8 @@ export default function SprintCalendar() {
                         return (
                           <div
                             onClick={() => {
-                              props.onClick?.()
+                              props.date && updateDateAndMonth(props.date)
+
                               // If this date is in a sprint, select that sprint
                               if (sprint) {
                                 setSelectedSprintId(sprint.id === selectedSprintId ? null : sprint.id)
