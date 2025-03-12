@@ -141,7 +141,7 @@ export default function SprintList({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="space-y-4 max-h-[500px] overflow-y-auto pr-1">
           {sortedSprints.length === 0 ? (
             <div className="text-center py-4 text-muted-foreground">Click "New Sprint" to create your first sprint</div>
           ) : (
