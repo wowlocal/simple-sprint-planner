@@ -111,7 +111,7 @@ export default function CreateSprintDialog({ open, onOpenChange, onCreateSprint 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] p-0 flex flex-col">
+      <DialogContent className="sm:max-w-[600px] lg:max-w-[900px] max-h-[90vh] p-0 flex flex-col">
         <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2 flex-shrink-0">
           <DialogTitle className="text-xl">Create New Sprint</DialogTitle>
           <DialogDescription>Plan your sprint timeline and add details</DialogDescription>
@@ -119,118 +119,126 @@ export default function CreateSprintDialog({ open, onOpenChange, onCreateSprint 
 
         <div className="flex-1 overflow-y-auto">
           <form onSubmit={handleSubmit} className="px-4 sm:px-6 py-4 space-y-5">
-            {/* Sprint Name */}
-            <div>
-              <Label htmlFor="name" className="text-base font-medium">
-                Sprint Name
-              </Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="mt-1.5"
-                placeholder="Enter sprint name"
-                required
-              />
-            </div>
+            <div className="lg:grid lg:grid-cols-2 lg:gap-6 space-y-5 lg:space-y-0">
+              {/* Left Column - Sprint Details */}
+              <div className="space-y-5">
+                {/* Sprint Name */}
+                <div>
+                  <Label htmlFor="name" className="text-base font-medium">
+                    Sprint Name
+                  </Label>
+                  <Input
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="mt-1.5"
+                    placeholder="Enter sprint name"
+                    required
+                  />
+                </div>
 
-            {/* Sprint Description */}
-            <div>
-              <Label htmlFor="description" className="text-base font-medium">
-                Description
-              </Label>
-              <textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="w-full min-h-[80px] p-3 mt-1.5 rounded-md border border-input bg-background resize-vertical"
-                placeholder="What are the goals for this sprint?"
-              />
-            </div>
+                {/* Sprint Description */}
+                <div>
+                  <Label htmlFor="description" className="text-base font-medium">
+                    Description
+                  </Label>
+                  <textarea
+                    id="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="w-full min-h-[120px] lg:min-h-[180px] p-3 mt-1.5 rounded-md border border-input bg-background resize-vertical"
+                    placeholder="What are the goals for this sprint?"
+                  />
+                </div>
 
-            {/* Sprint Duration */}
-            <div>
-              <Label className="text-base font-medium">Duration</Label>
-              <div className="grid grid-cols-4 gap-2 mt-1.5">
-                {durationOptions.map((option) => (
-                  <Button
-                    key={option.label}
-                    type="button"
-                    variant={!customDuration && selectedDuration === option.days ? "default" : "outline"}
-                    className="text-sm"
-                    onClick={() => {
-                      setSelectedDuration(option.days)
-                      setCustomDuration(false)
-                    }}
-                  >
-                    {option.label}
-                  </Button>
-                ))}
-              </div>
-
-              <div className="flex items-center gap-2 mt-2">
-                <Button
-                  type="button"
-                  variant={customDuration ? "default" : "outline"}
-                  className="text-sm"
-                  onClick={() => setCustomDuration(true)}
-                >
-                  Custom
-                </Button>
-                {customDuration && (
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      min="1"
-                      value={selectedDuration}
-                      onChange={handleDurationChange}
-                      className="w-20"
-                    />
-                    <span className="text-sm">days</span>
+                {/* Sprint Duration */}
+                <div>
+                  <Label className="text-base font-medium">Duration</Label>
+                  <div className="grid grid-cols-4 gap-2 mt-1.5">
+                    {durationOptions.map((option) => (
+                      <Button
+                        key={option.label}
+                        type="button"
+                        variant={!customDuration && selectedDuration === option.days ? "default" : "outline"}
+                        className="text-sm"
+                        onClick={() => {
+                          setSelectedDuration(option.days)
+                          setCustomDuration(false)
+                        }}
+                      >
+                        {option.label}
+                      </Button>
+                    ))}
                   </div>
-                )}
-              </div>
-            </div>
 
-            {/* Date Range Display */}
-            <div>
-              <div className="flex items-center gap-2 mt-1">
-                <div className="flex-1 flex items-center gap-2 p-2 border rounded-md bg-background">
-                  <CalendarIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                  <span className="text-sm truncate">{format(startDate, "MMM d, yyyy")}</span>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Button
+                      type="button"
+                      variant={customDuration ? "default" : "outline"}
+                      className="text-sm"
+                      onClick={() => setCustomDuration(true)}
+                    >
+                      Custom
+                    </Button>
+                    {customDuration && (
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="number"
+                          min="1"
+                          value={selectedDuration}
+                          onChange={handleDurationChange}
+                          className="w-20"
+                        />
+                        <span className="text-sm">days</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <div className="flex-1 flex items-center gap-2 p-2 border rounded-md bg-background">
-                  <CalendarIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                  <span className="text-sm truncate">{format(endDate, "MMM d, yyyy")}</span>
+
+                {/* Date Range Display */}
+                <div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className="flex-1 flex items-center gap-2 p-2 border rounded-md bg-background">
+                      <CalendarIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <span className="text-sm truncate">{format(startDate, "MMM d, yyyy")}</span>
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    <div className="flex-1 flex items-center gap-2 p-2 border rounded-md bg-background">
+                      <CalendarIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <span className="text-sm truncate">{format(endDate, "MMM d, yyyy")}</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">{selectedDuration} day sprint</p>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">{selectedDuration} day sprint</p>
-            </div>
 
-            {/* Calendar - Only for selecting start date but highlighting the full sprint range */}
-            <div className="border rounded-md bg-muted/10 p-4 flex justify-center">
-              <Calendar
-                mode="single"
-                selected={startDate}
-                onSelect={(date) => date && setStartDate(date)}
-                initialFocus
-                className="w-full"
-                modifiers={{
-                  sprintRange: isDayInSprintRange,
-                  sprintStart: (date) => isSameDay(date, startDate),
-                  sprintEnd: (date) => isSameDay(date, endDate),
-                }}
-                modifiersClassNames={{
-                  sprintRange: "bg-primary/20",
-                  sprintStart: "bg-primary text-primary-foreground rounded-l-md",
-                  sprintEnd: "bg-primary text-primary-foreground rounded-r-md",
-                }}
-              />
+              {/* Right Column - Calendar */}
+              <div className="flex flex-col">
+                <Label className="text-base font-medium mb-1.5 lg:block hidden">Select Start Date</Label>
+                <div className="border rounded-md bg-muted/10 p-4 flex justify-center flex-grow">
+                  <Calendar
+                    mode="single"
+                    selected={startDate}
+                    onSelect={(date) => date && setStartDate(date)}
+                    initialFocus
+                    className="w-full"
+                    modifiers={{
+                      sprintRange: isDayInSprintRange,
+                      sprintStart: (date) => isSameDay(date, startDate),
+                      sprintEnd: (date) => isSameDay(date, endDate),
+                    }}
+                    modifiersClassNames={{
+                      sprintRange: "bg-primary/20",
+                      sprintStart: "bg-primary text-primary-foreground rounded-l-md",
+                      sprintEnd: "bg-primary text-primary-foreground rounded-r-md",
+                    }}
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Buttons */}
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex justify-end gap-2 pt-4 border-t mt-6">
               <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
