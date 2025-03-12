@@ -16,6 +16,7 @@ interface SprintListProps {
   selectedDate: Date
   selectedSprintId: string | null
   onSprintSelect: (sprintId: string) => void
+  onDateChange?: (date: Date) => void
 }
 
 export default function SprintList({
@@ -25,6 +26,7 @@ export default function SprintList({
   selectedDate,
   selectedSprintId,
   onSprintSelect,
+  onDateChange,
 }: SprintListProps) {
   const [editingSprint, setEditingSprint] = useState<string | null>(null)
   const [editName, setEditName] = useState("")
@@ -60,16 +62,37 @@ export default function SprintList({
   const handleSave = (sprint: Sprint) => {
     if (!editName || !editStartDate || !editEndDate) return
 
-    onUpdate({
+    const updatedSprint = {
       ...sprint,
       name: editName,
       description: editDescription,
       startDate: editStartDate,
       endDate: editEndDate,
-    })
+    };
 
-    setEditingSprint(null)
-    setDatePickerView(null)
+    onUpdate(updatedSprint);
+
+    // If we have a date change handler and this is the selected sprint
+    if (onDateChange && selectedSprintId === sprint.id) {
+      // Check if the selected date is within the updated sprint
+      const sprintStart = new Date(updatedSprint.startDate);
+      const sprintEnd = new Date(updatedSprint.endDate);
+      const currentDate = new Date(selectedDate);
+
+      // Reset time parts for comparison
+      sprintStart.setHours(0, 0, 0, 0);
+      sprintEnd.setHours(0, 0, 0, 0);
+      currentDate.setHours(0, 0, 0, 0);
+
+      // If the current selected date is not within the sprint range,
+      // update the calendar view to show the start of the sprint
+      if (currentDate < sprintStart || currentDate > sprintEnd) {
+        onDateChange(new Date(updatedSprint.startDate));
+      }
+    }
+
+    setEditingSprint(null);
+    setDatePickerView(null);
   }
 
   const handleCancel = () => {
@@ -81,6 +104,29 @@ export default function SprintList({
     // Only trigger selection if not in edit mode
     if (editingSprint === null) {
       onSprintSelect(sprintId)
+
+      // If we have a date change handler and the sprint is being selected (not deselected)
+      if (onDateChange && (selectedSprintId !== sprintId)) {
+        // Find the sprint
+        const sprint = sprints.find(s => s.id === sprintId);
+        if (sprint) {
+          // Check if the selected date is within the sprint
+          const sprintStart = new Date(sprint.startDate);
+          const sprintEnd = new Date(sprint.endDate);
+          const currentDate = new Date(selectedDate);
+
+          // Reset time parts for comparison
+          sprintStart.setHours(0, 0, 0, 0);
+          sprintEnd.setHours(0, 0, 0, 0);
+          currentDate.setHours(0, 0, 0, 0);
+
+          // If the current selected date is not within the sprint range,
+          // update the calendar view to show the start of the sprint
+          if (currentDate < sprintStart || currentDate > sprintEnd) {
+            onDateChange(new Date(sprint.startDate));
+          }
+        }
+      }
     }
   }
 

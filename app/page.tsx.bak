@@ -67,12 +67,6 @@ export default function SprintCalendar() {
   const [view, setView] = useState<"month" | "year">("month")
   const [selectedSprintId, setSelectedSprintId] = useState<string | null>(null)
 
-  // Function to update both the selected date and the current month view
-  const updateDateAndMonth = (newDate: Date) => {
-    setDate(newDate);
-    setCurrentMonth(newDate);
-  };
-
   // Load sprints from localStorage on component mount
   useEffect(() => {
     const savedData = localStorage.getItem(STORAGE_KEY)
@@ -264,6 +258,12 @@ export default function SprintCalendar() {
     return checkDate >= startDate && checkDate <= endDate
   }
 
+  // Function to update both the selected date and the current month view
+  const updateDateAndMonth = (newDate: Date) => {
+    setDate(newDate);
+    setCurrentMonth(newDate);
+  };
+
   return (
     <div className="container mx-auto py-6">
       <div className="flex flex-col space-y-6">
@@ -304,89 +304,3 @@ export default function SprintCalendar() {
                     month={currentMonth}
                     onMonthChange={setCurrentMonth}
                     onSelect={(date) => date && updateDateAndMonth(date)}
-                    className="rounded-md"
-                    modifiers={{
-                      sprint: (date) => getSprintForDate(date) !== undefined,
-                      selectedSprint: (date) => isDateInSelectedSprint(date),
-                    }}
-                    modifiersClassNames={{
-                      sprint: "sprint-day",
-                      selectedSprint: "ring-2 ring-primary",
-                    }}
-                    components={{
-                      Day: (props) => {
-                        const sprint = getSprintForDate(props.date)
-                        const isSelected = isDateInSelectedSprint(props.date)
-
-                        return (
-                          <div
-                            onClick={() => {
-                              props.onClick?.()
-                              // If this date is in a sprint, select that sprint
-                              if (sprint) {
-                                setSelectedSprintId(sprint.id === selectedSprintId ? null : sprint.id)
-                              } else {
-                                setSelectedSprintId(null)
-                              }
-                            }}
-                            className={`relative h-9 w-9 p-0 font-normal aria-selected:opacity-100 ${
-                              sprint ? sprint.color : ""
-                            } ${isSelected ? "ring-2 ring-primary" : ""}`}
-                          >
-                            <div className="flex h-full w-full items-center justify-center rounded-md">
-                              {props.date.getDate()}
-                            </div>
-                          </div>
-                        )
-                      },
-                    }}
-                  />
-                </div>
-              </TabsContent>
-              <TabsContent value="year">
-                <YearView
-                  year={date.getFullYear()}
-                  sprints={sprints}
-                  selectedSprintId={selectedSprintId}
-                  onDateSelect={updateDateAndMonth}
-                  onSprintSelect={(sprintId) => setSelectedSprintId(sprintId === selectedSprintId ? null : sprintId)}
-                />
-              </TabsContent>
-            </Tabs>
-          </div>
-
-          <div>
-            <SprintList
-              sprints={sprints}
-              onDelete={deleteSprint}
-              onUpdate={updateSprint}
-              selectedDate={date}
-              selectedSprintId={selectedSprintId}
-              onSprintSelect={(sprintId) => setSelectedSprintId(sprintId === selectedSprintId ? null : sprintId)}
-              onDateChange={updateDateAndMonth}
-            />
-          </div>
-        </div>
-      </div>
-
-      <CreateSprintDialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen} onCreateSprint={addSprint} />
-
-      <AlertDialog open={isClearDialogOpen} onOpenChange={setIsClearDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Clear All Sprints</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will remove all sprints from your calendar. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={clearAllSprints} className="bg-destructive text-destructive-foreground">
-              Clear All
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
-  )
-}
