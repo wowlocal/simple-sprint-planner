@@ -33,18 +33,9 @@ const durationOptions: DurationOption[] = [
 export default function CreateSprintDialog({ open, onOpenChange, onCreateSprint }: CreateSprintDialogProps) {
   // Get the last sprint end date from localStorage when component mounts
   const [lastSprintEndDate, setLastSprintEndDate] = useState<Date | null>(null)
-
-  // Initialize start date based on last sprint end date or current date
-  const getInitialStartDate = () => {
-    if (lastSprintEndDate) {
-      return addDays(lastSprintEndDate, 1) // Start the day after the last sprint ended
-    }
-    return new Date() // Default to today if no previous sprint
-  }
-
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
-  const [startDate, setStartDate] = useState<Date>(getInitialStartDate())
+  const [startDate, setStartDate] = useState<Date>(new Date()) // Initialize with current date
   const [selectedDuration, setSelectedDuration] = useState<number>(14) // Default to 2 weeks
   const [customDuration, setCustomDuration] = useState<boolean>(false)
 
@@ -55,15 +46,22 @@ export default function CreateSprintDialog({ open, onOpenChange, onCreateSprint 
       try {
         const parsedDate = parseISO(savedEndDate)
         setLastSprintEndDate(parsedDate)
-        // Only update the start date when the dialog opens
-        if (open) {
-          setStartDate(addDays(parsedDate, 1))
-        }
       } catch (error) {
         console.error("Failed to parse saved end date:", error)
       }
     }
-  }, [open])
+  }, [])
+
+  // Update start date when dialog opens or lastSprintEndDate changes
+  useEffect(() => {
+    if (open) {
+      if (lastSprintEndDate) {
+        setStartDate(addDays(lastSprintEndDate, 1)) // Start the day after the last sprint ended
+      } else {
+        setStartDate(new Date()) // Default to today if no previous sprint
+      }
+    }
+  }, [open, lastSprintEndDate])
 
   // Calculate end date based on start date and duration
   const endDate = addDays(startDate, selectedDuration - 1) // Subtract 1 to include start day
@@ -217,9 +215,11 @@ export default function CreateSprintDialog({ open, onOpenChange, onCreateSprint 
                 <Label className="text-base font-medium mb-1.5 lg:block hidden">Select Start Date</Label>
                 <div className="border rounded-md bg-muted/10 p-4 flex justify-center flex-grow">
                   <Calendar
+                    key={`calendar-${open ? 'open' : 'closed'}-${startDate.toISOString()}`}
                     mode="single"
                     selected={startDate}
                     onSelect={(date) => date && setStartDate(date)}
+                    defaultMonth={startDate}
                     initialFocus
                     className="w-full"
                     modifiers={{
